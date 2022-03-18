@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const { de } = require("faker/lib/locales");
 const client = require("./client");
+
 async function createUser({ username, password }) {
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
@@ -49,11 +50,14 @@ async function getUserById(id) {
   try {
     const {
       rows: [user],
-    } = await client.query(`
+    } = await client.query(
+      `
           SELECT *
           FROM users
-          WHERE id=${id}
-        `);
+          WHERE id=$1
+        `,
+      [id]
+    );
     if (!user) {
       throw Error("User does not exist with that id");
     }

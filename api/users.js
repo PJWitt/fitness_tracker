@@ -11,8 +11,8 @@ usersRouter.use((req, res, next) => {
 const {
   getUser,
   getUserByUsername,
+  getUserById,
   createUser,
-  getPostById,
   getAllRoutinesByUser,
   getPublicRoutinesByUser,
 } = require("../db");
@@ -30,20 +30,24 @@ usersRouter.get("/me", async (req, res, next) => {
   res.send(userMe);
 });
 
-usersRouter.get("/:username/routines", async (req, res) => {
-  console.log(req.params);
-  const user = await getPostById(req.params);
+usersRouter.get("/:username/routines", async (req, res, next) => {
+  try {
+    console.log("test", req.params);
+    const user = await getUserByUsername(req.params);
 
-  if (!user.username) {
-    next({
-      name: "userVerificationError",
-      message: "An Invalid Username was entered!",
-    });
+    if (!user.username) {
+      next({
+        name: "userVerificationError",
+        message: "An Invalid Username was entered!",
+      });
+    }
+
+    const userRoutines = getPublicRoutinesByUser(user);
+
+    res.send(userRoutines);
+  } catch (error) {
+    next(error);
   }
-
-  const userRoutines = getPublicRoutinesByUser(user);
-
-  res.send(userRoutines);
 });
 
 usersRouter.post("/login", async (req, res, next) => {
@@ -92,41 +96,42 @@ usersRouter.post("/register", async (req, res, next) => {
   try {
     const _user = await getUserByUsername(username);
 
-    if (_user) {
-      next({
-        name: "UserExistsError",
-        message: "A user by that username already exists",
-      });
-    }
+    // if (_user) {
+    //   next({
+    //     name: "UserExistsError",
+    //     message: "A user by that username already exists",
+    //   });
+    // }
 
-    if (password.length < 8) {
-      next({
-        name: "PasswordShort",
-        message: "The password you chose must be atleast 8 characters long.",
-      });
-    }
+    // if (password.length < 8) {
+    //   next({
+    //     name: "PasswordShort",
+    //     message: "The password you chose must be atleast 8 characters long.",
+    //   });
+    // }
 
-    const user = await createUser({
-      username,
-      password,
-    });
+    // const user = await createUser({
+    //   username,
+    //   password,
+    // });
 
-    const token = jwt.sign(
-      {
-        id: user.id,
-        username,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1w",
-      }
-    );
+    // const token = jwt.sign(
+    //   {
+    //     id: user.id,
+    //     username,
+    //   },
+    //   process.env.JWT_SECRET,
+    //   {
+    //     expiresIn: "1w",
+    //   }
+    // );
 
-    res.send({
-      user: user,
-      message: "thank you for signing up",
-      token: token,
-    });
+    // res.send({
+    //   user: user,
+    //   message: "thank you for signing up",
+    //   token: token,
+    // });
+    res.send("this is our test");
   } catch ({ name, message }) {
     next({ name, message });
   }
