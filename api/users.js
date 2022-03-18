@@ -12,13 +12,14 @@ const {
   getUser,
   getUserByUsername,
   createUser,
+  getPostById,
   getAllRoutinesByUser,
   getPublicRoutinesByUser,
 } = require("../db");
 
-usersRouter.get("/me", async (req, res) => {
+usersRouter.get("/me", async (req, res, next) => {
   if (!req.user) {
-    next({
+    return next({
       name: "userVerificationError",
       message: "Only a logged in user can access their user information!",
     });

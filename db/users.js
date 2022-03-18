@@ -32,7 +32,7 @@ async function getUser({ username, password }) {
       `,
       [username]
     );
-
+    if (!user) return null;
     const hashedPassword = user.password;
     const passwordsMatch = await bcrypt.compare(password, hashedPassword);
     if (passwordsMatch) {
