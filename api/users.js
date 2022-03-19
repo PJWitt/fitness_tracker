@@ -26,9 +26,9 @@ usersRouter.get("/me", async (req, res, next) => {
       });
     }
 
-    const userMe = await getUser(req.body);
+    // const userMe = await getUser(req.body);
 
-    res.send(userMe);
+    res.send(req.user);
   } catch (error) {
     next(error);
   }
@@ -37,7 +37,7 @@ usersRouter.get("/me", async (req, res, next) => {
 usersRouter.get("/:username/routines", async (req, res, next) => {
   try {
     console.log("test", req.params);
-    const user = await getUserByUsername(req.params);
+    const user = await getUserByUsername(req.params.username);
 
     if (!user.username) {
       next({
@@ -45,9 +45,7 @@ usersRouter.get("/:username/routines", async (req, res, next) => {
         message: "An Invalid Username was entered!",
       });
     }
-
-    const userRoutines = getPublicRoutinesByUser(user);
-
+    const userRoutines = await getPublicRoutinesByUser(user);
     res.send(userRoutines);
   } catch (error) {
     next(error);
