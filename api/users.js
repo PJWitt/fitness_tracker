@@ -1,7 +1,7 @@
 const express = require("express");
 const usersRouter = express.Router();
 const jwt = require("jsonwebtoken");
-
+const bcrypt = require("bcrypt");
 usersRouter.use((req, res, next) => {
   console.log("A request is being made to /users");
 
@@ -18,16 +18,20 @@ const {
 } = require("../db");
 
 usersRouter.get("/me", async (req, res, next) => {
-  if (!req.user) {
-    return next({
-      name: "userVerificationError",
-      message: "Only a logged in user can access their user information!",
-    });
+  try {
+    if (!req.user) {
+      return next({
+        name: "userVerificationError",
+        message: "Only a logged in user can access their user information!",
+      });
+    }
+
+    const userMe = await getUser(req.body);
+
+    res.send(userMe);
+  } catch (error) {
+    next(error);
   }
-
-  const userMe = await getUser(req.body);
-
-  res.send(userMe);
 });
 
 usersRouter.get("/:username/routines", async (req, res, next) => {
@@ -96,42 +100,42 @@ usersRouter.post("/register", async (req, res, next) => {
   try {
     const _user = await getUserByUsername(username);
 
-    // if (_user) {
-    //   next({
-    //     name: "UserExistsError",
-    //     message: "A user by that username already exists",
-    //   });
-    // }
+    if (_user) {
+      res.status(401);
+      throw {
+        name: "UserExistsError",
+        message: "A user by that username already exists",
+      };
+    } else if (password.length < 8) {
+      console.log("else if thing");
+      res.status(401);
+      throw {
+        name: "PasswordShort",
+        message: "The password you chose must be atleast 8 characters long.",
+      };
+    }
 
-    // if (password.length < 8) {
-    //   next({
-    //     name: "PasswordShort",
-    //     message: "The password you chose must be atleast 8 characters long.",
-    //   });
-    // }
+    const user = await createUser({
+      username,
+      password,
+    });
 
-    // const user = await createUser({
-    //   username,
-    //   password,
-    // });
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1w",
+      }
+    );
 
-    // const token = jwt.sign(
-    //   {
-    //     id: user.id,
-    //     username,
-    //   },
-    //   process.env.JWT_SECRET,
-    //   {
-    //     expiresIn: "1w",
-    //   }
-    // );
-
-    // res.send({
-    //   user: user,
-    //   message: "thank you for signing up",
-    //   token: token,
-    // });
-    res.send("this is our test");
+    res.send({
+      user: user,
+      message: "thank you for signing up",
+      token: token,
+    });
   } catch ({ name, message }) {
     next({ name, message });
   }

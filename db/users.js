@@ -79,9 +79,9 @@ async function getUserByUsername(username) {
         `,
       [username]
     );
-    if (!user) {
-      throw Error("User does not exist with that username.");
-    }
+    // if (!user) {
+    //   throw Error("User does not exist with that username.");
+    // }
     return user;
   } catch (error) {
     throw error;
