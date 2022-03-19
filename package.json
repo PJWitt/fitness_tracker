@@ -4,7 +4,6 @@
   "description": "an API for our new fitness empire, FitnessTrac.kr, using node, express, and postgresql",
   "main": "index.js",
   "scripts": {
-    "db:build": "node ./db/init_db",
     "seed:dev": "nodemon ./db/seed.js",
     "seed": "node ./db/seed.js",
     "start:dev": "nodemon index.js",
@@ -32,6 +31,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.3",
     "faker": "^4.1.0",
+    "heroku": "^7.59.4",
     "jest": "^26.0.1",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.2.1",
