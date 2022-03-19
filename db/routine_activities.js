@@ -7,15 +7,15 @@ async function getRoutineActivityById(id) {
     } = await client.query(
       `
       SELECT *
-      FROM "routine_activities"
+      FROM routine_activities
       WHERE id=$1;
     `,
       [id]
     );
 
-    if (!routine_activity) {
-      throw Error("routine_activity with that id does not exist");
-    }
+    // if (!routine_activity) {
+    //   throw Error("routine_activity with that id does not exist");
+    // }
 
     return routine_activity;
   } catch (error) {
@@ -53,9 +53,9 @@ async function updateRoutineActivity({ id, count, duration }) {
     let routine_activity = await getRoutineActivityById(id);
 
     // If it doesn't exist, throw an error with a useful message
-    if (!routine_activity) {
-      throw Error("routine_activity does not exist with that id");
-    }
+    // if (!routine_activity) {
+    //   throw Error("routine_activity does not exist with that id");
+    // }
 
     //update the activity if there are no failures, as above
     await client.query(
@@ -100,19 +100,15 @@ async function destroyRoutineActivity(id) {
 async function getRoutineActivitiesByRoutine({ id }) {
   //not sure about this one either.
   try {
-    const { rows: routineIds } = await client.query(`
-        SELECT "routineId" 
+    const routine_activities = await client.query(
+      `
+        SELECT *
         FROM "routine_activities" 
-        WHERE "routineId"=${id};
-        `);
-
-    const routine_activities = await Promise.all(
-      routineIds.map((routine_activity) =>
-        getRoutineActivityById(routine_activity.id)
-      )
+        WHERE "routineId"=$1;
+        `,
+      [id]
     );
-
-    return routine_activities;
+    return routine_activities.rows;
   } catch (error) {
     throw error;
   }

@@ -1,7 +1,5 @@
 /* 
-
 DO NOT CHANGE THIS FILE
-
 */
 const axios = require("axios");
 require("dotenv").config();

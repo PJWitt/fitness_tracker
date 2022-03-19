@@ -87,7 +87,6 @@ usersRouter.post("/login", async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
@@ -105,7 +104,6 @@ usersRouter.post("/register", async (req, res, next) => {
         message: "A user by that username already exists",
       };
     } else if (password.length < 8) {
-      console.log("else if thing");
       res.status(401);
       throw {
         name: "PasswordShort",

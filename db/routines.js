@@ -79,10 +79,6 @@ async function getRoutineById(id) {
       WHERE id=${id}
     `);
 
-    if (!routine) {
-      throw Error("Routine does not exist with that id");
-    }
-
     return routine;
   } catch (error) {
     throw error;
@@ -295,12 +291,17 @@ async function updateRoutine({ id, isPublic, name, goal }) {
 // remove routine from database
 // Make sure to delete all the routine_activities whose routine is the one being deleted.
 async function destroyRoutine(id) {
+  const routine = getRoutineById(id);
+  if (!routine) {
+    return;
+  }
   try {
-    await client.query(
+    const response = await client.query(
       `
       DELETE
       FROM routines
-      WHERE id=$1;
+      WHERE id=$1
+      RETURNING *;
       `,
       [id]
     );
@@ -314,12 +315,7 @@ async function destroyRoutine(id) {
       [id]
     );
 
-    const message = {
-      success: true,
-      error: "none",
-      message: "routines successfully deleted",
-    };
-    return message;
+    return response.rows[0];
   } catch (error) {
     throw error;
   }
